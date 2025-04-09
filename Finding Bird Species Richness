@@ -45,3 +45,24 @@ combined_data
 
 #This is a complete table that shows the total observations per species, the species richness
 #The total observations across the UNITID per each UNITID
+
+#Should print something like this:
+# A tibble: 14,538 × 5
+   UNITID `COMMON NAME`            total_observations species_richness1 unitid_total_observations_across_all
+    <dbl> <chr>                                 <dbl>             <int>                                <dbl>
+ 1 132338 Boat-tailed Grackle                      60                25                                  276
+ 2 132338 Bonaparte's Gull                          1                25                                  276
+ 3 132338 Brown Pelican                             3                25                                  276
+ 4 132338 Chimney Swift                             0                25                                  276
+ 5 132338 Common Grackle                           17                25                                  276
+ 6 132338 Common Myna                               1                25                                  276
+ 7 132338 Double-crested Cormorant                  3                25                                  276
+ 8 132338 Eurasian Collared-Dove                   20                25                                  276
+ 9 132338 European Starling                        46                25                                  276
+10 132338 Fish Crow                                 5                25                                  276
+# ℹ 14,528 more rows
+# ℹ Use `print(n = ...)` to see more rows
+
+#total_observations: the total amount of observations per species per UNITID
+#species_richness1: how many species are present per UNITID
+#unitid_total_observations_across_all (definitely needs a name update lol, i just didn't want to confuse myself): the total amount of observations across all species per UNITID
