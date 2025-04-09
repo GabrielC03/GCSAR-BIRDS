@@ -1,0 +1,47 @@
+ipeds <- read_excel("downloads/IPEDS_combined_MEPANCFL_v4.xlsx")
+ebirds <- read_excel("downloads/EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3.xlsx")
+
+#This code above is subjective to however you usually upload excel files
+
+
+ebirds$`OBSERVATION COUNT` <- as.numeric(gsub(",", "", ebirds$`OBSERVATION COUNT`))
+
+species_observations <- ebirds|>
+  group_by(UNITID,`COMMON NAME`) |>
+  summarise(total_observations = sum(`OBSERVATION COUNT`, na.rm = TRUE)) |>
+  arrange(desc(total_observations))
+
+species_observations  
+
+#this gives the total observations per Common name per UNITID
+
+unitid_species_obs <- ebirds |>
+  group_by(UNITID, `COMMON NAME`) |>
+  summarise(total_observations = sum(`OBSERVATION COUNT`, na.rm = TRUE)) |>
+  ungroup()
+unitid_species_obs
+
+#this finds the total observations per species per UNITID
+
+species_richness1 <- unitid_species_obs|>
+  group_by(UNITID) |>
+  summarise(species_richness1 = n_distinct(`COMMON NAME`))
+
+species_richness1
+
+#calculates species richness per UNITID
+
+total_observations_per_unitid <- unitid_species_obs|>
+  group_by(UNITID) |>
+  summarise(unitid_total_observations_across_all = sum(total_observations))
+
+#This is finding the total observations
+
+combined_data <- unitid_species_obs |>
+  left_join(species_richness1, by = "UNITID")|>
+  left_join(total_observations_per_unitid, by = "UNITID")
+  arrange(UNITID, desc(total_observations))
+combined_data
+
+#This is a complete table that shows the total observations per species, the species richness
+#The total observations across the UNITID per each UNITID
