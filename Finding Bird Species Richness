@@ -66,3 +66,32 @@ combined_data
 #total_observations: the total amount of observations per species per UNITID
 #species_richness1: how many species are present per UNITID
 #unitid_total_observations_across_all (definitely needs a name update lol, i just didn't want to confuse myself): the total amount of observations across all species per UNITID
+
+
+ebirds_ipeds <- combined_data |>
+  left_join(ipeds, by = "UNITID")|>
+  select(UNITID, `COMMON NAME`, total_observations, unitid_total_observations_across_all,species_richness1, mean_impervious)
+ebirds_ipeds
+
+#This joins the ipeds and the ebirds datasets together, highlighting the impervious surface
+
+ebirds_ipeds_impervious <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  select(UNITID, INSTNM ,species_richness1, mean_impervious) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  drop_na()
+ebirds_ipeds_impervious
+
+#this is a more tidy dataset where the species richness is compared side to side 
+#with the impervious surface. 
+
+ggplot(ebirds_ipeds_impervious, aes(y = species_richness1, x = mean_impervious)) +
+  geom_point() +
+  labs(
+    title = "Relationship between species richness and impervious surfaces",
+    subtitle = "Institutions are limited to locations in Maine, Pennyslvania, North Carolina, and Florida",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+    
+  )
+#This visualizes the data with a scatterplot between species richness and impervious surfaces
