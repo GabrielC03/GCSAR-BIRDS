@@ -1,0 +1,49 @@
+# load in ebirds and ipeds data as CSVs
+ebird <- read_csv("data/EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3(in).csv")
+ipeds <- read_csv("data/IPEDS_combined_MEPANCFL_v4(in).csv")
+
+clean_names(ebird)
+clean_names(ipeds)
+ebird$`OBSERVATION COUNT` <- as.numeric(gsub(",", "", ebird$`OBSERVATION COUNT`))
+
+# remove duplicate observation events
+ebird_unique <- ebird |>
+  distinct(UNITID, `SAMPLING EVENT IDENTIFIER`, `COMMON NAME`, .keep_all = TRUE)
+ebird_unique
+
+# find species richness per sampling event w/ order
+richness_per_event_order <- ebird_unique |>
+  group_by(UNITID, `SAMPLING EVENT IDENTIFIER`, ORDER) |>
+  summarize(
+    species_richness = n_distinct(`COMMON NAME`), 
+    .groups = "drop")
+richness_per_event_order
+
+# find mean species richness per unitid/college w/ order
+avg_richness_order_college <- richness_per_event_order |>
+  group_by(UNITID, ORDER) |>
+  summarize(
+    mean_species_richness = mean(species_richness), 
+    .groups = "drop") |>
+  arrange(desc(mean_species_richness))
+avg_richness_order_college
+
+# join ipeds data and mean species richness data
+combined_data <- ipeds |> 
+  left_join(avg_richness_order_college, by = "UNITID") |>
+  filter(!is.na(ORDER)) |>
+  select(UNITID, INSTNM, mean_impervious, ORDER, mean_species_richness) |>
+  arrange(desc(mean_species_richness))
+combined_data
+
+# plot species richness vs. impervious surface, faceted by taxonomic order
+combined_data |>
+  ggplot(aes(x = mean_impervious, y = mean_species_richness)) +
+  geom_point() +
+  facet_wrap(~ORDER) +
+  labs(
+    title = "Bird species richness and impervious surfaces in U.S. college campuses by taxonomic order",
+    subtitle = "Data from institutions in Florida, Maine, North Carolina, and Pennsylvania",
+    x = "Mean Impervious Surface",
+    y = "Mean Species Richness"
+  )
