@@ -1,0 +1,46 @@
+#I worked off of Gabriel's code; should work if you just add this to the end of his work
+
+#join ebirds and ipeds data, Carnegie classification highlighted
+ebirds_ipeds_carnegie <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  select(UNITID, INSTNM, species_richness1, CARNEGIE) |>
+  mutate(CARNEGIE = as.character(CARNEGIE)) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  arrange(CARNEGIE) |>
+  drop_na()
+View(ebirds_ipeds_carnegie)
+
+#plot Carnegie classification vs. species richness
+ebirds_ipeds_carnegie |>
+  mutate(CARNEGIE = fct_reorder(factor(CARNEGIE), 
+                                species_richness1, 
+                                .fun = mean)) |>
+  filter(CARNEGIE != "53") |>
+  ggplot(aes(y = CARNEGIE, x = species_richness1, fill = CARNEGIE)) +
+  geom_boxplot() +
+  labs(
+    title = "Bird species biodiversity on U.S. college campuses by academic focus",
+    subtitle = "Institutions are grouped according to the Carnegie Classification framework based on academic focus/highest degree
+    offered. Data is limited to institutions in Florida, Maine, North Carolina, and Pennsylvania.",
+    x = "Species Richness",
+    y = "Carnegie Classification"
+  ) +
+  scale_y_discrete(position = "right",
+    labels = c(
+    "15" = "Doctoral/Research - Extensive",
+    "16" = "Doctoral/Research - Intensive",
+    "21" = "Master's 1",
+    "22" = "Master's 2",
+    "31" = "Baccalaureate - Liberal Arts",
+    "32" = "Baccalaureate - General",
+    "33" = "Baccalaureate/Associates",
+    "40" = "Associates",
+    "51" = "Theological/Faith",
+    "52" = "Medical",
+    "55" = "Business/Management",
+    "56" = "Art/Music/Design",
+    "57" = "Law",
+    "59" = "Specialized Other"
+  )) +
+  theme(legend.position = "none")
+#no engineering or teaching schools
