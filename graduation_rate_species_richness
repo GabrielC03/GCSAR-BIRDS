@@ -1,0 +1,23 @@
+#Finding the relationship between GRRTTOT and Bird species richness
+
+  
+ebirds_ipeds_grrttot <-combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  left_join(unitid_state, by = "UNITID") |>
+  select(UNITID, GRRTTOT, species_richness1, `COMMON NAME`, STATE) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  drop_na()
+ebirds_ipeds_grrttot
+
+
+ggplot(ebirds_ipeds_grrttot, aes(x = GRRTTOT, species_richness1)) +
+  geom_point(aes(color = `COMMON NAME`)) +
+  facet_wrap(~STATE) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Bird Species Richness and Graduation Rate by State",
+    x = "Bird Species Richness",
+    y = "Graduation Rate",
+    subtitle = "Most common species per institution is shown through color"
+  )
+
