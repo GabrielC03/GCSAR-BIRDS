@@ -6,15 +6,6 @@ ebirds <- read_excel("downloads/EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3.xlsx
 
 ebirds$`OBSERVATION COUNT` <- as.numeric(gsub(",", "", ebirds$`OBSERVATION COUNT`))
 
-species_observations <- ebirds|>
-  group_by(UNITID,`COMMON NAME`) |>
-  summarise(total_observations = sum(`OBSERVATION COUNT`, na.rm = TRUE)) |>
-  arrange(desc(total_observations))
-
-species_observations  
-
-#this gives the total observations per Common name per UNITID
-
 unitid_species_obs <- ebirds |>
   group_by(UNITID, `COMMON NAME`) |>
   summarise(total_observations = sum(`OBSERVATION COUNT`, na.rm = TRUE)) |>
