@@ -39,7 +39,7 @@ total_observations_per_unitid <- unitid_species_obs|>
 
 combined_data <- unitid_species_obs |>
   left_join(species_richness1, by = "UNITID")|>
-  left_join(total_observations_per_unitid, by = "UNITID")
+  left_join(total_observations_per_unitid, by = "UNITID") |>
   arrange(UNITID, desc(total_observations))
 combined_data
 
