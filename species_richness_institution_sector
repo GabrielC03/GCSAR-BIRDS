@@ -1,0 +1,29 @@
+# going off of Gabriel's code:
+
+ebirds_ipeds_combined <- combined_data |>
+  left_join(ipeds, by = "UNITID")
+
+# transform SECTOR values from numeric code to descriptive labels
+  ebirds_ipeds_combined <- ebirds_ipeds_combined |>
+  mutate(
+         SECTOR = as.factor(SECTOR),
+         SECTOR = fct_recode(SECTOR,
+                             "Public 4-year" = "1", 
+                             "Private nonprofit 4-year" = "2", 
+                             "Private for-profit 4-year" = "3",
+                             "Public 2-year" = "4",
+                             "Private nonprofit 2-year" = "5",
+                             "Private for-profit 2-year" = "6"
+         )
+  )
+
+ebirds_ipeds_combined |>
+  filter(!is.na(SECTOR)) |>
+ggplot(aes(x = SECTOR, y = species_richness1)) +
+  geom_boxplot(fill = "skyblue", color = "black") +
+  labs(
+    title = "Species Richness by Institution Sector",
+    x = "Institution Sector",
+    y = "Species Richness"
+  ) +
+  theme_minimal()
