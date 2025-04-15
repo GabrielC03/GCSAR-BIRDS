@@ -1,0 +1,52 @@
+# look at relationship between bird species richness and size class on the school
+# hypothesis: Larger institutions have higher bird species richness.
+
+
+# 1 |> under 1000
+# 2 |> 1000 - 4999
+# 3 |> 5000 - 9999
+# 4 |> 10000 - 19999
+# 5 |> 20000 and above
+
+# tibble with institution, species richness, and institution size
+ebirds_ipeds_size <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  select(UNITID, INSTNM ,species_richness1, INSTSIZE, mean_impervious) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  drop_na() |> 
+  mutate(INSTSIZE = as.character(INSTSIZE))
+ebirds_ipeds_size
+
+
+# changes the observation names for the legend
+ebirds_ipeds_size$INSTSIZE <- factor(ebirds_ipeds_size$INSTSIZE,
+                                     labels = c("1" = "under 1,000",
+                                                "2" = "1,000 - 4,999",
+                                                "3" = "5,000 - 9,999",
+                                                "4" = "10,000 - 19,999",
+                                                "5" = "20,000 and above"))
+
+
+# boxplot with the species richness compared to the size of the institution/student population
+ggplot(ebirds_ipeds_size, aes(y = species_richness1, x = INSTSIZE, fill = INSTSIZE)) +
+  geom_boxplot() +
+  labs(x = "Student population size",
+       y = "species richness",
+       title = "Relationship between institution size and bird species richness") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_brewer()
+# add this to quarto: #| fig-cap: In the IPEDS datasheet, institution size was reported as the size of the student population. There is a slight increase in species richness as the size of the student population increases, but the many outliers may skew the data and mask a stronger relationship.
+
+
+# zoomed in
+ggplot(ebirds_ipeds_size, aes(y = species_richness1, x = INSTSIZE, fill = INSTSIZE)) +
+  geom_boxplot() +
+  labs(x = "Student population size",
+       y = "species richness",
+       title = "Relationship between institution size and bird species richness") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_brewer() +
+  scale_y_continuous(limits = c(0, 75))
+# This is the same plot, but zoomed in to more easily observe the variation between institution sizes.
