@@ -88,9 +88,7 @@ ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) 
 
 ###What is the relationship?
 
-##Graduation Rate and Bird Species Richness
-A rich biodiverse campus is linked to better well-being of students, often resulting in academic persistance. Does having a rich bird biodiversity result in a higher graduation rate?
-
+##Graduation Rate and Bird Species Richness A rich biodiverse campus is linked to better well-being of students, often resulting in academic persistance. Does having a rich bird biodiversity result in a higher graduation rate?
 
 ```{r}
 unitid_state <- ipeds |>
@@ -99,6 +97,33 @@ unitid_state <- ipeds |>
 
 #There are many data points in this data so lets look at this state by state
 
+grrttot_bird <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  left_join(unitid_state, by = "UNITID") |>
+  left_join(ebirds, by = "UNITID") |>
+  select(UNITID, GRRTTOT, species_richness, `COMMON NAME`, STATE) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  drop_na()
+grrttot_bird
+#A join between several tables was done to find the graduation rate and species richness, allowing us to plot this data
+```
+
+Now to plot:
+
+```{r}
+ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
+  geom_point(aes(color = `COMMON NAME`)) +
+  facet_wrap(~STATE) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Bird Species Richness and Graduation Rate by State",
+    x = "Bird Species Richness",
+    y = "Graduation Rate",
+    subtitle = "Most common species per institution is shown through color"
+  )
 
 ```
 
+![](images/clipboard-321304867.png){width="400"}
+
+![](images/Screenshot 2025-04-14 at 12.18.37 PM-01.png){width="246"}
