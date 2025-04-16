@@ -187,15 +187,20 @@ Now to plot:
 #| fig-width: 10
 # code written by Gabriel Cabrera
 ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
-  geom_point(aes(color = `COMMON NAME`)) +
-  facet_wrap(~STATE) +
-   coord_cartesian(xlim = c(0, 100)) +
-  theme(legend.position = "right") +
-  labs(
-    title = "Bird Species Richness and Graduation Rate by State",
-    x = "Bird Species Richness",
-    y = "Graduation Rate"
-  )
+    geom_point(aes(color = `COMMON NAME`)) +
+    facet_wrap(~STATE) +
+    coord_cartesian(ylim = c(0, 100)) +
+    theme(
+        legend.position = "right",
+        legend.key.size = unit(0.05, "cm"),
+        legend.key.width = unit(0.03, "cm")
+    ) +
+    labs(
+        title = "Bird Species Richness and Graduation Rate by State",
+        x = "Bird Species Richness",
+        y = "Graduation Rate"
+    )
+While there are many schools that have low graduation rates with high bird species richness, most schools with a graduation rate of at least 75% have a bird species rate around 50% or higher. This graph shows that while bird species richness categorized by common name, may have an effect on increasing graduation rate, there are colleges that have low graduation rates and high rates of bird species richness. In conclusion, high bird species richness rates may be a factor to high graduation rates, but other factors must be taken into consideration as well. 
 
 # In comparison looking at the order per school:
 
@@ -207,16 +212,17 @@ ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
 #code written by Gabriel Cabrera
 
 ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
-  geom_point(aes(color = ORDER)) +
-  facet_wrap(~STATE) +
-  theme(legend.position = "right") +
-  labs(
-    title = "Bird Species Richness and Graduation Rate by State",
-    x = "Bird Species Richness",
-    y = "Graduation Rate",
-    subtitle = "Most common order per institution is shown through color"
-  )
-
+    geom_point(aes(color = ORDER)) +
+    facet_wrap(~STATE) +
+    theme(legend.position = "right") +
+    coord_cartesian(ylim = c(0, 100)) +
+    labs(
+        title = "Bird Species Richness and Graduation Rate by State",
+        x = "Bird Species Richness",
+        y = "Graduation Rate",
+        subtitle = "Most common order per institution is shown through color"
+    )
+Similar results were found in comparison to using common name, some schools with high graduation rates have high diverse bird species richness, yet there are schools with high bird species richness but low graduation rates as well. Therefore, no conclusive statement can be made without looking at other factors of the college campus.
 ```
 
 ------------------------------------------------------------------------
