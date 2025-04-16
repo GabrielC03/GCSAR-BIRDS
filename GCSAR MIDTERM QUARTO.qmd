@@ -115,7 +115,7 @@ The relationship does vary by taxonomic order. When looking at the relationship 
 
 ## Graduation Rate and Bird Species Richness
 
-Graduation Rate and Bird Species Richness A rich biodiverse campus is linked to better well-being of students, often resulting in academic persistance. Does having a rich bird biodiversity result in a higher graduation rate?
+A rich biodiverse campus is linked to better well-being of students, often resulting in academic persistance. Does having a rich bird biodiversity result in a higher graduation rate?
 
 ```{r}
 unitid_state <- ipeds |>
