@@ -22,11 +22,11 @@ First lets import some useful packages and the data:
 ```{r}
 #| label: setup
 # code written by Gabriel Cabrera
+
 library(tidyr)
 library(tidyverse)
 library(ggplot2)
 library(readxl)
-# code written by Gabriel Cabrera
 ebirds <- read_csv("EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3.csv")
 ipeds <- read_csv("IPEDS_combined_MEPANCFL_v4.csv")
 #Reading the data formatted in the csv
@@ -48,7 +48,7 @@ ebirds$`OBSERVATION COUNT` <- as.numeric(gsub(",", "", ebirds$`OBSERVATION COUNT
 #makes sure all observations are numerical 
 
 
-# summarization and join
+# summarize and join
 combined_data <- ebirds |>
   group_by(UNITID, `COMMON NAME`) |>
   summarise(
@@ -206,7 +206,7 @@ In the IPEDS dataset, institution size was reported as the size of the student p
 #| fig-cap: There is a slight increase in species richness as the size of the student population increases, but the many outliers may skew the data and mask a stronger relationship.
 # code written by Lilah Shtino
 
-
+# create tibble used to make the plot
 ebirds_ipeds_size <- combined_data |>
   left_join(ipeds, by = "UNITID") |>
   select(UNITID, species_richness, INSTSIZE, mean_impervious) |>
