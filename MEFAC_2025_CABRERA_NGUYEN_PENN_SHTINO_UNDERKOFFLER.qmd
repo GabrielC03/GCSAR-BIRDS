@@ -202,7 +202,8 @@ ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
     )
 ```
 While there are many schools that have low graduation rates with high bird species richness, most schools with a graduation rate of at least 75% have a bird species rate around 50% or higher. This graph shows that while bird species richness categorized by common name, may have an effect on increasing graduation rate, there are colleges that have low graduation rates and high rates of bird species richness. In conclusion, high bird species richness rates may be a factor to high graduation rates, but other factors must be taken into consideration as well. 
-```
+
+```{r}
 # In comparison looking at the order per school:
 
 #| label: richness_grad_order_plot
