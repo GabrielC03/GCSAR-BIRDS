@@ -1,0 +1,208 @@
+---
+title: "GSCAR BIRDS CARNEGIE"
+format: html
+editor: visual
+---
+
+#### Setup
+
+```{r}
+library(tidyverse)
+library(writexl)
+library(readxl)
+library(ggplot2)
+
+ipeds <- read_excel("data/IPEDS_combined_MEPANCFL_v4.xlsx")
+ebirds <- read_excel("data/EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3.xlsx")
+
+ebirds$`OBSERVATION COUNT` <- as.numeric(gsub(",", "", ebirds$`OBSERVATION COUNT`))
+
+# summarization and join
+combined_data <- ebirds |>
+  group_by(UNITID, `COMMON NAME`) |>
+  summarise(
+    total_observations = sum(`OBSERVATION COUNT`, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  group_by(UNITID) |>
+  summarise(
+    species_richness = n_distinct(`COMMON NAME`),
+    total_observations_all = sum(total_observations),
+    .groups = "drop"
+  ) |>
+  arrange(UNITID, desc(total_observations_all))
+combined_data
+
+#this finds the species richness as well as the total observations of each college campus
+
+
+ebirds_ipeds_impervious <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  select(UNITID, INSTNM, species_richness, mean_impervious) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  drop_na()
+ebirds_ipeds_impervious
+
+#join with IPEDS dataset by distinct key "UNITID" keeping 
+
+
+ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) +
+  geom_point() +
+  labs(
+    title = "Relationship between species richness and impervious surfaces",
+    subtitle = "Institutions are limited to locations in Maine, Pennyslvania, North Carolina, and Florida",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+  )
+
+#A simple scatter point graph is created using ggplots package
+```
+
+#### Accounting for Taxonomic Order
+
+```{r}
+#remove duplicate observation events
+ebird_unique <- ebirds |>
+  distinct(UNITID, `SAMPLING EVENT IDENTIFIER`, `COMMON NAME`, ORDER, .keep_all = TRUE)
+ebird_unique
+
+#find species richness per sampling event w/ order
+richness_per_event_order <- ebird_unique |>
+  group_by(UNITID, `SAMPLING EVENT IDENTIFIER`, ORDER) |>
+  summarize(
+    species_richness = n_distinct(`COMMON NAME`), 
+    .groups = "drop")
+richness_per_event_order
+
+#find mean species richness per unitid/college w/ order
+avg_richness_order_college <- richness_per_event_order |>
+  group_by(UNITID, ORDER) |>
+  summarize(
+    mean_species_richness = mean(species_richness), 
+    .groups = "drop") |>
+  arrange(desc(mean_species_richness))
+avg_richness_order_college
+
+#join ipeds data and mean species richness data
+combined_impervious_order <- ipeds |> 
+  left_join(avg_richness_order_college, by = "UNITID") |>
+  filter(!is.na(ORDER)) |>
+  select(UNITID, INSTNM, mean_impervious, ORDER, mean_species_richness) |>
+  arrange(desc(mean_species_richness))
+combined_impervious_order
+
+#plot species richness vs. impervious surface, faceted by taxonomic order
+combined_impervious_order |>
+  ggplot(aes(x = mean_impervious, y = mean_species_richness)) +
+  geom_point() +
+  facet_wrap(~ORDER, scales = "free") +
+  labs(
+    title = "Bird species richness and impervious surfaces in U.S. college campuses by taxonomic order",
+    subtitle = "Data from institutions in Florida, Maine, North Carolina, and Pennsylvania",
+    x = "Mean Impervious Surface",
+    y = "Mean Species Richness"
+  )
+```
+
+![](richness_impervious_order.png)
+
+#### Exploring the Relationship between Carnegie Classification and Bird Species Richness
+
+```{r}
+#join ebirds and ipeds data w/ emphasis on Carnegie classification
+ebirds_ipeds_carnegie <- combined_data |>
+  left_join(ipeds, by = "UNITID") |>
+  select(UNITID, INSTNM, species_richness, CARNEGIE, mean_impervious) |>
+  mutate(CARNEGIE = as.character(CARNEGIE)) |>
+  distinct(UNITID, .keep_all = TRUE) |>
+  arrange(CARNEGIE) |>
+  drop_na()
+View(ebirds_ipeds_carnegie)
+
+#label info
+carnegie_labels <- c(
+  "15" = "Doctoral/Research - Extensive",
+  "16" = "Doctoral/Research - Intensive",
+  "21" = "Master's 1",
+  "22" = "Master's 2",
+  "31" = "Baccalaureate - Liberal Arts",
+  "32" = "Baccalaureate - General",
+  "33" = "Baccalaureate/Associates",
+  "40" = "Associates",
+  "51" = "Theological/Faith",
+  "52" = "Medical",
+  "55" = "Business/Management",
+  "56" = "Art/Music/Design",
+  "57" = "Law",
+  "59" = "Specialized Other")
+
+#plot Carnegie classification vs. species richness
+ebirds_ipeds_carnegie |>
+  mutate(CARNEGIE = fct_reorder(factor(CARNEGIE), 
+                                species_richness, 
+                                .fun = mean)) |>
+  filter(CARNEGIE != "53") |>
+  ggplot(aes(y = CARNEGIE, x = species_richness, fill = CARNEGIE)) +
+  geom_boxplot() +
+  labs(
+    title = "Bird species biodiversity on U.S. college campuses by academic focus",
+    subtitle = "Institutions are grouped according to the Carnegie Classification framework based on academic focus/highest degree
+    offered. Data is limited to institutions in Florida, Maine, North Carolina, and Pennsylvania.",
+    x = "Species Richness",
+    y = "Carnegie Classification"
+  ) +
+  scale_y_discrete(position = "right", labels = carnegie_labels) +
+  theme(legend.position = "none")
+#no engineering or teaching schools
+```
+
+![](species_richness_carnegie.png)
+
+#### Accounting for Taxonomic Order and Impervious Surface along with Carnegie Classification
+
+Create a data frame grouping similar institutions for simplicity:
+
+```{r}
+combined_carnegie_grouped <- ipeds |> 
+  left_join(avg_richness_order_college, by = "UNITID") |>
+  mutate(CARNEGIE = as.character(CARNEGIE)) |>
+  select(UNITID, INSTNM, CARNEGIE, ORDER, mean_species_richness, mean_impervious) |>
+  mutate(
+    CARNEGIE_GROUP = case_when(
+      str_detect(CARNEGIE, "15|16") ~ "Doctoral",
+      str_detect(CARNEGIE, "21|22") ~ "Master's",
+      str_detect(CARNEGIE, "31|32") ~ "Baccalaureate",
+      str_detect(CARNEGIE, "33") ~ "B/A",
+      str_detect(CARNEGIE, "40") ~ "Associates",
+      str_detect(CARNEGIE, "51|52|55|56|57|59") ~ "Specialized",
+      TRUE ~ "Other"
+    )
+  ) |>
+  arrange(desc(mean_species_richness))
+combined_carnegie_grouped
+```
+
+Plot Carnegie classification vs. average species richness, organized by taxonomic order:
+
+```{r}
+combined_carnegie_grouped |>
+  filter(!is.na(ORDER)) |>
+  ggplot(aes(x = CARNEGIE_GROUP, y = mean_species_richness, fill = ORDER)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+
+Plot average species richness vs. average impervious surface, by Carnegie classification:
+
+```{r}
+combined_carnegie_grouped |>
+  ggplot(aes(y = mean_species_richness, x = mean_impervious)) +
+  geom_point() +
+  facet_wrap(~CARNEGIE_GROUP)
+  labs(
+    title = "Relationship between species richness and impervious surfaces",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+  )
+```
