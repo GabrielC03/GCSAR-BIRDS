@@ -148,7 +148,7 @@ ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
   geom_point(aes(color = `COMMON NAME`)) +
   facet_wrap(~STATE) +
   theme_bw() +
-  theme(legend.position = "none") +
+  theme(legend.position = "right") +
   labs(
     title = "Bird Species Richness and Graduation Rate by State",
     x = "Bird Species Richness",
