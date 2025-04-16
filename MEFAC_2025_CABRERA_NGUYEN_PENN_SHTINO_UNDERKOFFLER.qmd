@@ -13,7 +13,7 @@ excecute:
 
 Gabriel Cabrera, Jaela Nguyen, Sabrina Penn, Lilah Shtino, Jessica Underkoffler
 
-## Campus Biodiversity Data
+# Bird Biodiversity on College Campuses
 
 A rich biodiversity on college campuses has been shown to increase the well-being of students, professors, and staff members. This project looks at biodiversity data in bird species richness, across several academic institutions from east coast states in the United States including Florida, Massachusetts, North Carolina, and Pennsylvania. To understand the full effect that bird species richness has on college campuses, several relationships between other variables such as graduation rate, institution size, Carnegie classification, and sector were researched.
 
@@ -177,18 +177,39 @@ Now to plot:
 
 ```{r}
 #| label: richness_grad_plot
-#| fig-cap: add caption
+#| fig-cap: Bird species richness, categorized by how many different species are found at the college campus, is compared with the graduation rate.
+#| fig-height: 5
+#| fig-width: 10
 # code written by Gabriel Cabrera
 ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
   geom_point(aes(color = `COMMON NAME`)) +
   facet_wrap(~STATE) +
-  theme_bw() +
-  theme(legend.position = "none") +
+   coord_cartesian(xlim = c(0, 100)) +
+  theme(legend.position = "right") +
+  labs(
+    title = "Bird Species Richness and Graduation Rate by State",
+    x = "Bird Species Richness",
+    y = "Graduation Rate"
+  )
+
+# In comparison looking at the order per school:
+
+#| label: richness_grad_order_plot
+#| fig-cap: Bird species richness, categorized by how many different orders are found at the college campus, is compared with the graduation rate
+#| fig-height: 5
+#| fig-width: 10
+
+#code written by Gabriel Cabrera
+
+ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
+  geom_point(aes(color = ORDER)) +
+  facet_wrap(~STATE) +
+  theme(legend.position = "right") +
   labs(
     title = "Bird Species Richness and Graduation Rate by State",
     x = "Bird Species Richness",
     y = "Graduation Rate",
-    subtitle = "Most common species per institution is shown through color"
+    subtitle = "Most common order per institution is shown through color"
   )
 
 ```
@@ -362,7 +383,7 @@ combined_carnegie_grouped |>
   theme(legend.position = "bottom") +
   labs(y = "Species Richness",
        x = "Carnegie Group",
-       title = "Factoring in Order for Species Richness Across Broader Carnegie Groups")
+       title = "Species Richness Within Orders Across Broader Carnegie Groups")
 ```
 
 Plot average species richness vs. average impervious surface, by Carnegie classification:
@@ -382,6 +403,114 @@ combined_carnegie_grouped |>
     y = "Species Richness") +
   theme_bw()
 ```
+
+### Biodiversity by School Locale
+
+The schools in this data set exist in a wide range of settings. Some schools - like the Community College of Philadelphia- have bustling city campuses, whereas others - like Unity College- are set in peaceful and secluded rural areas. Students often choose their schools based on what kind of locale they want to live in. How does this impact bird biodiversity? Our hypothesis is that more urban schools will have lower biodiversity than rural schools. Let's put this to the test
+
+Lets start by finding the average number of species observed at each locale:
+
+```{r}
+species_by_LOCALE <- ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  summarize(
+    avg_species_count = mean(species_count, na.rm = TRUE)
+  ) |>
+  mutate(
+    LOCALE = as.factor(LOCALE), #in the dataset, the locale variable is described using integers. This isn't super intuituve, so we convert them to factors in order to rename them
+    LOCALE = fct_recode(LOCALE,
+     "City: Large"      = "11",
+     "City: Midsize"    = "12",
+     "City: Small"      = "13",
+     "Suburb: Large"    = "21",
+     "Suburb: Midsize"  = "22",
+     "Suburb: Small"    = "23",
+     "Town: Fringe"     = "31",
+     "Town: Distant"    = "32",
+     "Town: Remote"     = "33",
+     "Rural: Fringe"    = "41",
+     "Rural: Distant"   = "42",
+     "Rural: Remote"    = "43"
+    )
+  )
+
+species_by_LOCALE
+```
+
+Let's visualize this:
+
+```{r}
+#| fig-cap: Barplot showing the average biodiversity by school locale
+ggplot(species_by_LOCALE, aes(x = LOCALE, y = avg_species_count, fill = LOCALE)) + geom_col() +labs( 
+  title = "Mean Species Richness by Locale",
+  y = " Mean Species Count",
+  x = "locale") + coord_flip()
+```
+
+It doesn't look like there's a strong relationship between locale and bird biodiversity. Surprisingly, urban locales have higher biodiversity on average when compared with rural locales. Midsize suburban schools seem to have the highest biodiversity. Just to be sure, let's look at the full data:
+
+```{r}
+#| fig-cap: boxplots displaying the range of bird biodiversity of schools in each locale
+ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  mutate(
+    LOCALE = as.factor(LOCALE),
+    LOCALE = fct_recode(LOCALE,
+                        "City: Large"      = "11",
+                        "City: Midsize"    = "12",
+                        "City: Small"      = "13",
+                        "Suburb: Large"    = "21",
+                        "Suburb: Midsize"  = "22",
+                        "Suburb: Small"    = "23",
+                        "Town: Fringe"     = "31",
+                        "Town: Distant"    = "32",
+                        "Town: Remote"     = "33",
+                        "Rural: Fringe"    = "41",
+                        "Rural: Distant"   = "42",
+                        "Rural: Remote"    = "43"
+    )
+  ) |>
+ggplot(aes(x = LOCALE, y = species_count, fill = LOCALE)) + geom_boxplot() + labs( 
+  title = "Species Richness by Locale",
+  y = "Species Count",
+  x = "locale") + coord_flip()
+```
+
+Here we can see that there's a wide range in biodiversity among city schools. This may be due to the wide variety of habitats that are created in urban areas. How does this correlate with the amount of impervious surface in each locale? In other words, do some locales have higher degrees of impervious surface, and does this factor impact bird biodiversity?
+
+```{r}
+#| fig-cap: Facet line plots indicating the relationship between average percentage of imervious surface and bird biodiversity for ech locale
+ebirds_ipeds |>
+  filter(!is.na(mean_impervious), !is.na(species_count)) |>
+  mutate(
+    LOCALE = as.factor(LOCALE),
+    LOCALE = fct_recode(LOCALE,
+                        "City: Large"      = "11",
+                        "City: Midsize"    = "12",
+                        "City: Small"      = "13",
+                        "Suburb: Large"    = "21",
+                        "Suburb: Midsize"  = "22",
+                        "Suburb: Small"    = "23",
+                        "Town: Fringe"     = "31",
+                        "Town: Distant"    = "32",
+                        "Town: Remote"     = "33",
+                        "Rural: Fringe"    = "41",
+                        "Rural: Distant"   = "42",
+                        "Rural: Remote"    = "43"
+    )
+  ) |>
+  ggplot(aes(x = mean_impervious, y = species_count)) +
+ geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs", k = 5), aes(color = LOCALE)) +
+  facet_wrap(~ LOCALE) +
+  labs(
+title = "Bird Biodiversity vs Mean Impervious by Locale", 
+x = "Mean Impervious", 
+y = "Species Count")
+``` 
+It seems like across locales, species counts drop below 50 when average impervious surface is above 75%. However, there doesn't seem to be a locale-specific pattern in covariation between the two. 
+
 
 ------------------------------------------------------------------------
 
