@@ -362,7 +362,7 @@ combined_carnegie_grouped |>
   theme(legend.position = "bottom") +
   labs(y = "Species Richness",
        x = "Carnegie Group",
-       title = "Factoring in Order for Species Richness Across Broader Carnegie Groups")
+       title = "Species Richness Within Orders Across Broader Carnegie Groups")
 ```
 
 Plot average species richness vs. average impervious surface, by Carnegie classification:
