@@ -482,6 +482,7 @@ ggplot(aes(x = LOCALE, y = species_count, fill = LOCALE)) + geom_boxplot() + lab
 Here we can see that there's a wide range in biodiversity among city schools. This may be due to the wide variety of habitats that are created in urban areas. How does this correlate with the amount of impervious surface in each locale? In other words, do some locales have higher degrees of impervious surface, and does this factor impact bird biodiversity?
 
 ```{r}
+#| fig-cap: Facet line plots indicating the relationship between average percentage of imervious surface and bird biodiversity for ech locale
 ebirds_ipeds |>
   filter(!is.na(mean_impervious), !is.na(species_count)) |>
   mutate(
@@ -502,10 +503,10 @@ ebirds_ipeds |>
     )
   ) |>
   ggplot(aes(x = mean_impervious, y = species_count)) +
-  geom_smooth(aes(color = LOCALE)) +
+ geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs", k = 5), aes(color = LOCALE)) +
   facet_wrap(~ LOCALE) +
   labs(
-title = "Bird Biodiversity vs Mean Imperious by Locale", 
+title = "Bird Biodiversity vs Mean Impervious by Locale", 
 x = "Mean Impervious", 
 y = "Species Count")
 ``` 
