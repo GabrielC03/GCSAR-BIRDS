@@ -101,7 +101,54 @@ ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) 
 
 #### What is the relationship?
 
-There is no strong correlation between bird species richness and impervious surface. Performing a log transform on mean species richness, mean impervious, or both doesn’t affect the relationship significantly.
+There is no strong correlation between bird species richness and impervious surface. Performing a logarithmic transformation on mean species richness, mean impervious, or both doesn’t affect the relationship significantly or strengthen the correlation.
+
+```{r}
+#| label: log_transform_x
+#| fig-cap: Heatmap of species richness vs. impervious surface with logarithmic transformations of impervious surface.
+# code written by Jaela Nguyen
+
+ggplot(ebirds_ipeds_impervious, aes(x = mean_impervious, y = species_richness)) +
+  geom_bin2d() +
+  labs(
+    title = "log10(Impervious Surfaces)",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+  ) +
+  scale_x_log10() +
+  theme_bw() 
+
+```
+```{r}
+#| label: log_transform_y
+#| fig-cap: Heatmap of species richness vs. impervious surface with logarithmic transformations of species richness.
+# code written by Jaela Nguyen
+ggplot(ebirds_ipeds_impervious, aes(x = mean_impervious, y = species_richness)) +
+  geom_bin2d() +
+  labs(
+    title = "log10(Species Richness)",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+  ) +
+  scale_y_log10() +
+  theme_bw()
+```
+```{r}
+#| label: log_transform_x_y
+#| fig-cap: Heatmap of species richness vs. impervious surface with logarithmic transformations of impervious surface and species richness.
+# code written by Jaela Nguyen
+
+ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) +
+  geom_bin2d() +
+  labs(
+    title = "log10(Impervious Surfaces), log10(Species Richness)",
+    x = "Impervious Surfaces",
+    y = "Species Richness"
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme_bw()
+```
 
 Some species of bird have adapted to living in urban areas. For example, rock pigeons (Columba livia) and house sparrows (Passer domesticus), both of which are found in the eBird dataset, commonly live in urban areas. The inclusion of these species may mask the richness trends aligned with our hypothesis. 
 
