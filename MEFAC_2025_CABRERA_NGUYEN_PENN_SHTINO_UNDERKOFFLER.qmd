@@ -86,8 +86,8 @@ Finally, create a plot to visualize bird species richness and impervious surface
 
 ```{r}
 #| label: richness_impervious_main
-#| fig-cap: add caption
-# code written by Gabriel Cabrera
+#| fig-cap: #| fig-cap: Heatmap showing the relationship between bird species richness and impervious surface coverage on college campuses in the US. Institutions are limited to Maine, Pennsylvania, North Carolina, and Florida. Lighter blue represents a higher concentration of data points in that area while darker blue represents a lower concentration.
+# code written by Gabriel Cabrera and Lilah Shtino
 ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) +
   geom_bin2d() +
   labs(
@@ -321,7 +321,7 @@ Is there a discernible relationship between the species richness and impervious 
 
 ```{r}
 #| label: richness_imperv_size
-#| fig-cap: Data points represent individual institutions, color-coded by enrollment size. Smoothed trend lines illustrate how biodiversity varies with increasing impervious surface area for each institution size category.
+#| fig-cap: Data points represent individual institutions, color-coded by the size of the student population. Smoothed trend lines illustrate how biodiversity varies with increasing impervious surface area for each institution size category.
 #| # code written by Lilah Shtino
 
 # creates scatterplot of species richness and impervious surfaces with smoothed lines for each institution size
@@ -454,14 +454,16 @@ combined_carnegie_grouped |>
 ```
 
 When accounting for both impervious surface and Carnegie classification, there doesn't seem to be a strong relationship with species richness. Doctoral/research universities show mid-to-higher areas of impervious surfaces, most likely because these institutions are generally larger.
+***
 
-### Biodiversity by School Locale
+## Biodiversity by School Locale
 
 The schools in this data set exist in a wide range of settings. Some schools - like the Community College of Philadelphia- have bustling city campuses, whereas others - like Unity College- are set in peaceful and secluded rural areas. Students often choose their schools based on what kind of locale they want to live in. How does this impact bird biodiversity? Our hypothesis is that more urban schools will have lower biodiversity than rural schools. Let's put this to the test
 
 Lets start by finding the average number of species observed at each locale:
 
 ```{r}
+# code written by Sabrina Penn
 species_by_LOCALE <- combined_data |>
   left_join(ipeds, by = "UNITID") |>
   filter(!is.na(LOCALE), !is.na(species_richness)) |>
@@ -486,13 +488,13 @@ species_by_LOCALE <- combined_data |>
      "Rural: Remote"    = "43"
     )
   )
-species_by_LOCALE
 ```
 
 Let's visualize this:
 
 ```{r}
 #| fig-cap: Barplot showing the average biodiversity by school locale
+# code written by Sabrina Penn
 ggplot(species_by_LOCALE, aes(x = LOCALE, y = avg_species_count, fill = LOCALE)) + geom_col() +labs( 
   title = "Mean Species Richness by Locale",
   y = " Mean Species Richness",
@@ -503,6 +505,7 @@ It doesn't look like there's a strong relationship between locale and bird biodi
 
 ```{r}
 #| fig-cap: boxplots displaying the range of bird biodiversity of schools in each locale
+# code written by Sabrina Penn
 combined_data |>
   left_join(ipeds, by = "UNITID") |>
   filter(!is.na(LOCALE), !is.na(species_richness)) |>
@@ -534,7 +537,7 @@ Here we can see that there's a wide range in biodiversity among city schools. Th
 
 ```{r}
 #| fig-cap: Facet line plots indicating the relationship between average percentage of impervious surface and bird biodiversity for each locale
-
+# code written by Sabrina Penn
 combined_data |>
   left_join(ipeds, by = "UNITID") |>
   filter(!is.na(mean_impervious), !is.na(species_richness)) |>
