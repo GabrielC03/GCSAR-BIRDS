@@ -4,7 +4,6 @@ format:
   html: 
     self-contained: true
 editor: visual
-echo: false
 warning: false
 excecute: 
   fig-width: 6
@@ -14,39 +13,34 @@ excecute:
 
 Gabriel Cabrera, Jaela Nguyen, Sabrina Penn, Lilah Shtino, Jessica Underkoffler
 
-Campus Biodiversity Data
+## Campus Biodiversity Data
 
 A rich biodiversity on college campuses has been shown to increase the well-being of students, professors, and staff members. This project looks at biodiversity data in bird species richness, across several academic institutions from east coast states in the United States including Florida, Massachusetts, North Carolina, and Pennsylvania. To understand the full effect that bird species richness has on college campuses, several relationships between other variables such as graduation rate, institution size, Carnegie classification, and sector were researched.
 
-First lets import some useful packages:
+First lets import some useful packages and the data:
 
-{r}
+```{r}
 #| label: setup
-#| include: false
 # code written by Gabriel Cabrera
 library(tidyr)
 library(tidyverse)
 library(ggplot2)
 library(readxl)
-#Version 1.4.3 of readxl was used
-
-Data is from the eBird database created by Cornell Lab of Ornithology, a database that allows users to add their bird observations from college campuses across the world, and the Integrated Post-secondary Education Data System (IPEDS) a database that gathers information from every college and institution that participates in federal student aid programs.
-
-{r}
-#| label: import_data
-#| include: false
 # code written by Gabriel Cabrera
 ebirds <- read_csv("EBbird_IPEDS_UNITID_MEPANCFL_Jan23-May23_v3.csv")
 ipeds <- read_csv("IPEDS_combined_MEPANCFL_v4.csv")
-#Reading the data formatted in Excel
+#Reading the data formatted in the csv
+```
 
-Bird Species Richness and Impervious Surfaces
+Data is from the eBird database created by Cornell Lab of Ornithology, a database that allows users to add their bird observations from college campuses across the world, and the Integrated Post-secondary Education Data System (IPEDS) a database that gathers information from every college and institution that participates in federal student aid programs.
+
+## Bird Species Richness and Impervious Surfaces
 
 Bird species richness looks at how many different bird species there are at each campus. Impervious surfaces is identified as a continuous metric representing the percentage of mean impervious surface cover within a 0.5km radius around the recorded IPEDS lat/long for the institution derived from 2019 NLCD (National Land Cover Data).
 
 Let's first look at bird species richness:
 
-{r}
+```{r}
 #| label: species_richness
 # code written by Gabriel Cabrera
 
@@ -70,10 +64,11 @@ combined_data <- ebirds |>
   arrange(UNITID, desc(total_observations_all))
 
 #this finds the species richness as well as the total observations of each college campus
+```
 
-Now we want to join this with the IPEDS data to find the relationship between bird species richness and impervious surfaces
+Now we want to join this with the IPEDS data to find the relationship between bird species richness and impervious surfaces:
 
-{r}
+```{r}
 #| label: join
 # code written by Gabriel Cabrera
 ebirds_ipeds_impervious <- combined_data |>
@@ -83,15 +78,16 @@ ebirds_ipeds_impervious <- combined_data |>
   drop_na()
 
 #join with IPEDS dataset by distinct key "UNITID" keeping 
+```
 
-We predict that those colleges and universities with a higher amount of impervious surface covering the ground will have a lower biodiversity of bird species.
+**We predict that those colleges and universities with a higher amount of impervious surface covering the ground will have a lower biodiversity of bird species.**
 
 Finally, create a plot to visualize bird species richness and impervious surfaces:
 
-{r}
+```{r}
 #| label: richness_impervious_main
 #| fig-cap: add caption
-# code authored by Gabriel Cabrera
+# code written by Gabriel Cabrera
 ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) +
   geom_bin2d() +
   labs(
@@ -101,9 +97,9 @@ ggplot(ebirds_ipeds_impervious, aes(y = species_richness, x = mean_impervious)) 
     y = "Species Richness"
   ) +
   theme_bw()
-#A heatmap point graph is created using ggplots package
+```
 
-What is the relationship?
+#### What is the relationship?
 
 There is no strong correlation between bird species richness and impervious surface. Performing a log transform on mean species richness, mean impervious, or both doesn’t affect the relationship significantly.
 
@@ -111,12 +107,12 @@ Some species of bird have adapted to living in urban areas. For example, rock pi
 
 The relationship does vary by taxonomic order. When looking at the relationship between the bird species richness of each taxonomic order and the impervious surface we can see that majority of the orders do not have a significant relationship as the average species richness does not vary as impervious surface increases. However, with the Passeriformes order the species richness tends to vary with the impervious surface without showing any clear relationship.
 
-Looking at Taxonomic Orders
+#### Looking at Taxonomic Orders
 
-{r}
+```{r}
 #| label: richness_impervious_order
 #| fig-cap: Heatmaps showing the relationship between bird species richness and impervious surface cover. Each panel represents a distinct bird order.
-# code writted by Jaela Nguyen
+# code written by Jaela Nguyen
 # find species richness per sampling event w/ order
 richness_per_event_order <- ebirds |>
   group_by(UNITID, `SAMPLING EVENT IDENTIFIER`, ORDER) |>
@@ -150,14 +146,17 @@ combined_data2 |>
     x = "Impervious Surface",
     y = "Species Richness"
   )
+```
 
-Graduation Rate and Bird Species Richness
+------------------------------------------------------------------------
+
+## Graduation Rate and Bird Species Richness
 
 A rich biodiverse campus is linked to better well-being of students, often resulting in academic persistence. Does having a rich bird biodiversity result in a higher graduation rate?
 
-{r}
+```{r}
 #| label: richness_grad_join
-# code authored by Gabriel Cabrera
+# code written by Gabriel Cabrera
 unitid_state <- ipeds |>
   group_by(UNITID) |>
   summarise(STATE = STABBR.x)
@@ -172,10 +171,11 @@ grrttot_bird <- combined_data |>
   distinct(UNITID, .keep_all = TRUE) |>
   drop_na()
 #A join between several tables was done to find the graduation rate and species richness, allowing us to plot this data
+```
 
 Now to plot:
 
-{r}
+```{r}
 #| label: richness_grad_plot
 #| fig-cap: add caption
 # code written by Gabriel Cabrera
@@ -191,14 +191,17 @@ ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
     subtitle = "Most common species per institution is shown through color"
   )
 
+```
 
-Institution size
+------------------------------------------------------------------------
+
+## Institution size
 
 A larger institution should have the resources to create a diverse range of habitats, likely supporting higher bird biodiversity. Do larger universities support a higher bird species richness?
 
 In the IPEDS dataset, institution size was reported as the size of the student population enrolled in classes in the fall of 2012.
 
-{r}
+```{r}
 #| label: richness_size
 #| fig-cap: There is a slight increase in species richness as the size of the student population increases, but the many outliers may skew the data and mask a stronger relationship.
 # code written by Lilah Shtino
@@ -228,12 +231,13 @@ ggplot(ebirds_ipeds_size, aes(y = species_richness, x = INSTSIZE, fill = INSTSIZ
        title = "Relationship between institution size and bird species richness") +
   theme_bw() +
   theme(legend.position = "none")
+```
 
-Accounting for Impervious Surface Coverage
+#### Accounting for Impervious Surface Coverage
 
 Is there a discernible relationship between the species richness and impervious surfaces across institution size?
 
-{r}
+```{r}
 #| label: richness_imperv_size
 #| fig-cap: Data points represent individual institutions, color-coded by enrollment size. Smoothed trend lines illustrate how biodiversity varies with increasing impervious surface area for each institution size category.
 #| # code written by Lilah Shtino
@@ -249,12 +253,15 @@ ebirds_ipeds_size |>
   labs(title = "Biodiversity and impervious surface coverage across institution sizes",
        x = "Impervious Surfaces",
        y = "Species Richness")
+```
 
 There is no obvious relationship when factoring in impervious surfaces to species richness across institution sizes. However, the trend lines show that for institutions with the largest amount of impervious surfaces, species richness does increase with increasing student population sizes with the exception of institutions with under 1,000 students. Interestingly, the trend lines show that the smallest institutions with the largest amount of impervious surfaces have the highest species richness compared to other all other institution sizes.
 
-Carnegie Classification
+------------------------------------------------------------------------
 
-{r}
+## Carnegie Classification
+
+```{r}
 #| label: richness_carnegie
 #| fig-cap: Institutions are grouped according to the Carnegie Classification framework based on academic focus highest degree offered. Data is limited to institutions in Florida, Maine, North Carolina, and Pennsylvania.
 # code written by Jaela Nguyen
@@ -268,6 +275,7 @@ ebirds_ipeds_carnegie <- combined_data |>
   arrange(CARNEGIE) |>
   drop_na()
 
+#no engineering or teaching schools
 #plot Carnegie classification vs. species richness
 ebirds_ipeds_carnegie |>
   mutate(CARNEGIE = fct_reorder(factor(CARNEGIE), 
@@ -300,13 +308,13 @@ ebirds_ipeds_carnegie |>
   )) +
   theme_bw() +
   theme(legend.position = "none")
-#no engineering or teaching schools
+```
 
-Accounting for Taxonomic Order and Impervious Surface along with Carnegie Classification
+#### Accounting for Taxonomic Order and Impervious Surface along with Carnegie Classification
 
 Create a data frame grouping similar institutions for simplicity:
 
-{r}
+```{r}
 #| label: carnegie_groups
 # code written by Jaela Nguyen
 
@@ -337,10 +345,11 @@ combined_carnegie_grouped <- ipeds |>
       TRUE ~ "Other")
   ) |>
   arrange(desc(mean_species_richness))
+```
 
 Plot Carnegie classification vs. average species richness, organized by taxonomic order:
 
-{r}
+```{r}
 #| label: richness_carnegie_order
 #| fig-cap: Stacked bar chart showing bird species richness by order across broader Carnegie classification groups of U.S. higher education institutions. Each bar represents the total species richness within a Carnegie group, with colored segments indicating contributions from individual bird orders. The legend identifies the bird orders represented by each color.
 # code written by Jaela Nguyen
@@ -354,10 +363,11 @@ combined_carnegie_grouped |>
   labs(y = "Species Richness",
        x = "Carnegie Group",
        title = "Factoring in Order for Species Richness Across Broader Carnegie Groups")
+```
 
 Plot average species richness vs. average impervious surface, by Carnegie classification:
 
-{r}
+```{r}
 #| label: richness_impervious_carnegie
 #| warning: false
 #| fig-cap: Scatterplots showing the relationship between bird species richness and impervious surface cover across different Carnegie classification groups. Each panel represents a distinct institutional category, highlighting variation in species richness relative to the amount of impervious surface coverage present on campus.
@@ -371,4 +381,4 @@ combined_carnegie_grouped |>
     x = "Impervious Surfaces",
     y = "Species Richness") +
   theme_bw()
-
+```
