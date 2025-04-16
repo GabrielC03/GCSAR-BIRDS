@@ -177,18 +177,40 @@ Now to plot:
 
 ```{r}
 #| label: richness_grad_plot
-#| fig-cap: add caption
+#| fig-cap: Bird species richness, categorized by how many different species are found at the college campus, is compared with the graduation rate.
+#| fig-height: 5
+#| fig-width: 10
 # code written by Gabriel Cabrera
 ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
   geom_point(aes(color = `COMMON NAME`)) +
   facet_wrap(~STATE) +
-  theme_bw() +
-  theme(legend.position = "none") +
+   coord_cartesian(xlim = c(0, 100)) +
+  theme(legend.position = "right") +
+  labs(
+    title = "Bird Species Richness and Graduation Rate by State",
+    x = "Bird Species Richness",
+    y = "Graduation Rate"
+  )
+
+In comparison looking at the order per school:
+
+```{r}
+#| label: richness_grad_order_plot
+#| fig-cap: Bird species richness, categorized by how many different orders are found at the college campus, is compared with the graduation rate
+#| fig-height: 5
+#| fig-width: 10
+
+#code written by Gabriel Cabrera
+
+ggplot(grrttot_bird, aes(x = GRRTTOT, species_richness)) +
+  geom_point(aes(color = ORDER)) +
+  facet_wrap(~STATE) +
+  theme(legend.position = "right") +
   labs(
     title = "Bird Species Richness and Graduation Rate by State",
     x = "Bird Species Richness",
     y = "Graduation Rate",
-    subtitle = "Most common species per institution is shown through color"
+    subtitle = "Most common order per institution is shown through color"
   )
 
 ```
