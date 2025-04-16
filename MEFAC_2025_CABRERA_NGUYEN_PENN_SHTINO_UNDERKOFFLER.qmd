@@ -293,6 +293,8 @@ There is no obvious relationship when factoring in impervious surfaces to specie
 
 ## Carnegie Classification
 
+The Carnegie Classification system identifies colleges in the U.S. based on the highest degree offered, the level of research activity, and/or focus of study. Some schools may put a higher priority on the ecological spaces and biodiversity of their campuses as a product of what area of study they happen to specialize in. Larger, more research-focused institutions may have more funding overall to devote to biodiversity-boosting programs. Let's take a look at Carnegie classification and species richness:
+
 ```{r}
 #| label: richness_carnegie
 #| fig-cap: Institutions are grouped according to the Carnegie Classification framework based on academic focus highest degree offered. Data is limited to institutions in Florida, Maine, North Carolina, and Pennsylvania.
@@ -342,25 +344,16 @@ ebirds_ipeds_carnegie |>
   theme(legend.position = "none")
 ```
 
+Doctoral/research universities with a broad scope of study generally show higher species biodiversity on their campuses, while biodiversity levels within research universities specialized in a specific area of study are not as high. Baccalaureate level institutions, both general and liberal arts focused, also show higher levels. As expected, institutions specialized in fields not ecology/biology-based show lower biodiversity levels, with medical schools and theological seminaries/other faith-related schools having the lowest richness. Schools of art, music, and design show higher levels of biodiversity compared to the other specialized schools. These types of schools, along with liberal arts undergrad schools, may put more of an emphasis on aesthetically-pleasing and green campuses that contribute to improved bird biodiversity.
+
 #### Accounting for Taxonomic Order and Impervious Surface along with Carnegie Classification
 
-Create a data frame grouping similar institutions for simplicity:
+How would the relationship between Carnegie classification and species richness change if we also looked at taxonomic order?
 
 ```{r}
-#| label: carnegie_groups
+#| label: richness_carnegie_order
+#| fig-cap: Stacked bar chart showing bird species richness by order across broader Carnegie classification groups of U.S. higher education institutions. Each bar represents the total species richness within a Carnegie group, with colored segments indicating contributions from individual bird orders. The legend identifies the bird orders represented by each color.
 # code written by Jaela Nguyen
-
-#remove duplicate observation events
-ebird_unique <- ebirds |>
-  distinct(UNITID, `SAMPLING EVENT IDENTIFIER`, `COMMON NAME`, ORDER, .keep_all = TRUE)
-
-#find species richness per sampling event w/ order
-richness_per_event_order <- ebird_unique |>
-  group_by(UNITID, `SAMPLING EVENT IDENTIFIER`, ORDER) |>
-  summarize(
-    species_richness = n_distinct(`COMMON NAME`), 
-    .groups = "drop")
-
 
 combined_carnegie_grouped <- ipeds |> 
   left_join(avg_richness_order_college, by = "UNITID") |>
@@ -377,14 +370,7 @@ combined_carnegie_grouped <- ipeds |>
       TRUE ~ "Other")
   ) |>
   arrange(desc(mean_species_richness))
-```
 
-Plot Carnegie classification vs. average species richness, organized by taxonomic order:
-
-```{r}
-#| label: richness_carnegie_order
-#| fig-cap: Stacked bar chart showing bird species richness by order across broader Carnegie classification groups of U.S. higher education institutions. Each bar represents the total species richness within a Carnegie group, with colored segments indicating contributions from individual bird orders. The legend identifies the bird orders represented by each color.
-# code written by Jaela Nguyen
 combined_carnegie_grouped |>
   filter(!is.na(ORDER)) |>
   ggplot(aes(x = CARNEGIE_GROUP, y = mean_species_richness, fill = ORDER)) +
@@ -397,7 +383,9 @@ combined_carnegie_grouped |>
        title = "Species Richness Within Orders Across Broader Carnegie Groups")
 ```
 
-Plot average species richness vs. average impervious surface, by Carnegie classification:
+Interestingly, when accounting for taxonomic order, associates-level schools show highest order diversity, with baccalaureate schools close behind. Doctoral/research universities, both extensive and intensive, shoot below the highest richness levels. Birds of the Passeriformes order contribute a significant amount to species richness across all institutions types.
+
+What if we considered impervious surface, Carnegie classification, and species richness altogether?
 
 ```{r}
 #| label: richness_impervious_carnegie
@@ -414,6 +402,8 @@ combined_carnegie_grouped |>
     y = "Species Richness") +
   theme_bw()
 ```
+
+When accounting for both impervious surface and Carnegie classification, there doesn't seem to be a strong relationship with species richness. Doctoral/research universities show mid-to-higher areas of impervious surfaces, most likely because these institutions are generally larger.
 
 ### Biodiversity by School Locale
 
