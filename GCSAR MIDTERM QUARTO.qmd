@@ -18,7 +18,6 @@ Gabriel Cabrera, Jaela Nguyen, Sabrina Penn, Lilah Shtino, Jessica Underkoffler
 
 A rich biodiversity on college campuses has been shown to increase the well-being of students, professors, and staff members. This project looks at biodiversity data in bird species richness, across several academic institutions from east coast states in the United States including Florida, Massachusetts, North Carolina, and Pennsylvania. To understand the full effect that bird species richness has on college campuses, several relationships between other variables such as graduation rate, institution size, Carnegie classification, and sector were researched.
 
-First lets import some useful packages:
 
 ```{r}
 #| label: setup
@@ -46,7 +45,7 @@ ipeds <- read_csv("IPEDS_combined_MEPANCFL_v4.csv")
 
 Bird species richness looks at how many different bird species there are at each campus. Impervious surfaces is identified as a continuous metric representing the percentage of mean impervious surface cover within a 0.5km radius around the recorded IPEDS lat/long for the institution derived from 2019 NLCD (National Land Cover Data).
 
-Let's first look at bird species richness:
+
 
 ```{r}
 #| label: species_richness
@@ -90,7 +89,6 @@ ebirds_ipeds_impervious <- combined_data |>
 
 We predict that those colleges and universities with a higher amount of impervious surface covering the ground will have a lower biodiversity of bird species.
 
-Finally, create a plot to visualize bird species richness and impervious surfaces:
 
 ```{r}
 #| label: richness_impervious_main
@@ -141,7 +139,6 @@ grrttot_bird <- combined_data |>
 #A join between several tables was done to find the graduation rate and species richness, allowing us to plot this data
 ```
 
-Now to plot:
 
 ```{r}
 #| label: richness_grad_plot
@@ -279,7 +276,6 @@ ebirds_ipeds_carnegie |>
 
 #### Accounting for Taxonomic Order and Impervious Surface along with Carnegie Classification
 
-Create a data frame grouping similar institutions for simplicity:
 
 ```{r}
 #| label: carnegie_groups
@@ -323,7 +319,6 @@ combined_carnegie_grouped <- ipeds |>
   arrange(desc(mean_species_richness))
 ```
 
-Plot Carnegie classification vs. average species richness, organized by taxonomic order:
 
 ```{r}
 #| label: richness_carnegie_order
@@ -341,7 +336,6 @@ combined_carnegie_grouped |>
        title = "Factoring in Order for Species Richness Across Broader Carnegie Groups")
 ```
 
-Plot average species richness vs. average impervious surface, by Carnegie classification:
 
 ```{r}
 #| label: richness_impervious_carnegie
