@@ -110,18 +110,22 @@ The relationship does vary by taxonomic order. When looking at the relationship 
 #### Looking at Taxonomic Orders
 
 ```{r}
-#| label: richness_impervious_order
-#| fig-cap: Heatmaps showing the relationship between bird species richness and impervious surface cover. Each panel represents a distinct bird order.
+#| label: taxonomic order
+#| fig-cap: Scatterplots showing the relationship between bird species richness and impervious surface cover. Each panel represents a distinct bird order.
 # code written by Jaela Nguyen
-# find species richness per sampling event w/ order
-richness_per_event_order <- ebirds |>
+
+#remove duplicate observation events
+ebird_unique <- ebirds |>
+  distinct(UNITID, `SAMPLING EVENT IDENTIFIER`, `COMMON NAME`, ORDER, .keep_all = TRUE)
+
+#find species richness per sampling event w/ order
+richness_per_event_order <- ebird_unique |>
   group_by(UNITID, `SAMPLING EVENT IDENTIFIER`, ORDER) |>
   summarize(
     species_richness = n_distinct(`COMMON NAME`), 
     .groups = "drop")
 
-
-# find mean species richness per unitid/college w/ order
+#find mean species richness per unitid/college w/ order
 avg_richness_order_college <- richness_per_event_order |>
   group_by(UNITID, ORDER) |>
   summarize(
@@ -129,22 +133,23 @@ avg_richness_order_college <- richness_per_event_order |>
     .groups = "drop") |>
   arrange(desc(mean_species_richness))
 
-# join ipeds data and mean species richness data
-combined_data2 <- ipeds |> 
+#join ipeds data and mean species richness data
+combined_impervious_order <- ipeds |> 
   left_join(avg_richness_order_college, by = "UNITID") |>
   filter(!is.na(ORDER)) |>
   select(UNITID, INSTNM, mean_impervious, ORDER, mean_species_richness) |>
   arrange(desc(mean_species_richness))
 
-# plot species richness vs. impervious surface, faceted by taxonomic order
-combined_data2 |>
+#plot species richness vs. impervious surface, faceted by taxonomic order
+combined_impervious_order |>
   ggplot(aes(x = mean_impervious, y = mean_species_richness)) +
-  geom_bin2d() +
-  facet_wrap(~ORDER) +
+  geom_point() +
+  facet_wrap(~ORDER, scales = "free_y") +
   labs(
-    title = "Species richness and impervious surface cover by taxonomic order",
-    x = "Impervious Surface",
-    y = "Species Richness"
+    title = "Bird species richness and impervious surfaces in U.S. college campuses by taxonomic order",
+    subtitle = "Data from institutions in Florida, Maine, North Carolina, and Pennsylvania",
+    x = "Mean Impervious Surface",
+    y = "Mean Species Richness"
   )
 ```
 
